@@ -51,9 +51,176 @@ const primaryStyle = {
   cursor: "pointer"
 };
 
+// ================= MY ACCOUNT =================
+
+function AccountDetails({ user, onBack, onLogout }) {
+  const isRetailer = user?.role === "retailer";
+
+  const detailStyle = {
+    background: "#f6f9f6",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 12
+  };
+
+  const labelStyle = {
+    color: "#758278",
+    fontSize: 12,
+    marginBottom: 5
+  };
+
+  const valueStyle = {
+    color: "#203327",
+    fontWeight: 700,
+    fontSize: 15,
+    overflowWrap: "anywhere"
+  };
+
+  function Detail({ label, value }) {
+    return (
+      <div style={detailStyle}>
+        <div style={labelStyle}>{label}</div>
+        <div style={valueStyle}>{value || "Not provided"}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "#f4f7f4",
+      color: "#203327"
+    }}>
+      <header style={{
+        background: "white",
+        padding: "15px 5%",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: 12,
+        borderBottom: "1px solid #e5ebe5"
+      }}>
+        <BrandLogo />
+
+        <button
+          onClick={onBack}
+          style={{
+            background: "#237b42",
+            color: "white",
+            border: 0,
+            padding: "11px 18px",
+            borderRadius: 9,
+            cursor: "pointer",
+            fontWeight: 700
+          }}
+        >
+          ← Back
+        </button>
+      </header>
+
+      <main style={{
+        width: "min(94%, 850px)",
+        margin: "35px auto",
+        background: "white",
+        padding: 25,
+        borderRadius: 18,
+        boxShadow: "0 5px 25px #183d1710"
+      }}>
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          paddingBottom: 22,
+          borderBottom: "1px solid #edf1ed",
+          marginBottom: 24
+        }}>
+          <div style={{
+            width: 65,
+            height: 65,
+            borderRadius: "50%",
+            background: "#e5f3e8",
+            color: "#237b42",
+            display: "grid",
+            placeItems: "center",
+            fontSize: 30
+          }}>
+            {isRetailer ? "🏪" : "👨‍🌾"}
+          </div>
+
+          <div>
+            <h2 style={{ margin: 0, color: "#205c35" }}>My Account</h2>
+            <p style={{ margin: "6px 0 0", color: "#758278" }}>
+              Welcome, {user?.name || "User"}
+            </p>
+          </div>
+        </div>
+
+        <h3 style={{ color: "#205c35" }}>Personal Information</h3>
+
+        <Detail label="Full Name" value={user?.name} />
+        <Detail label="Email Address" value={user?.email} />
+        <Detail label="Mobile Number" value={user?.mobile} />
+        <Detail
+          label="Account Type"
+          value={isRetailer ? "Retailer" : "Farmer"}
+        />
+
+        {isRetailer && (
+          <>
+            <h3 style={{ color: "#205c35", marginTop: 25 }}>Shop Information</h3>
+            <Detail label="Shop Name" value={user?.shopName} />
+            <Detail label="Shop Address" value={user?.shopAddress} />
+            <Detail label="PIN Code" value={user?.pincode} />
+          </>
+        )}
+
+        {!isRetailer && (
+          <>
+            <h3 style={{ color: "#205c35", marginTop: 25 }}>Location</h3>
+            <Detail
+              label="Village / Town"
+              value={JSON.parse(localStorage.getItem("fasalsetu_area") || "null")?.village}
+            />
+            <Detail
+              label="PIN Code"
+              value={JSON.parse(localStorage.getItem("fasalsetu_area") || "null")?.pincode}
+            />
+          </>
+        )}
+
+        <div style={{
+          display: "flex",
+          gap: 12,
+          flexWrap: "wrap",
+          marginTop: 25
+        }}>
+          <button onClick={onBack} style={{
+            ...primaryStyle,
+            width: "auto",
+            flex: 1
+          }}>
+            Continue to FasalSetu
+          </button>
+
+          <button onClick={onLogout} style={{
+            ...primaryStyle,
+            width: "auto",
+            flex: 1,
+            background: "#fff0ed",
+            color: "#b34232"
+          }}>
+            Logout
+          </button>
+        </div>
+      </main>
+    </div>
+  );
+}
+
 // ================= RETAILER DASHBOARD =================
 
-function RetailerDashboard({ user, onLogout }) {
+function RetailerDashboard({ user, onLogout, onHome, onAccount }) {
   const [section, setSection] = useState("Overview");
   const [items, setItems] = useState([]);
   const [formOpen, setFormOpen] = useState(false);
@@ -117,7 +284,8 @@ function RetailerDashboard({ user, onLogout }) {
     ["Sales Reports", "📈"],
     ["Shop Profile", "🏪"],
     ["Customers", "👥"],
-    ["Settings", "⚙️"]
+    ["Settings", "⚙️"],
+    ["My Account", "👤"]
   ];
 
   const buttonStyle = {
@@ -277,11 +445,27 @@ function RetailerDashboard({ user, onLogout }) {
       }}>
         <BrandLogo />
 
-        <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap" }}>
           <div style={{ textAlign: "right" }}>
             <strong>{user.shopName || user.name}</strong>
             <div style={{ fontSize: 12, color: "#758278" }}>Retailer Account</div>
           </div>
+
+          <button onClick={onHome} style={{
+            ...buttonStyle,
+            background: "#e9f4eb",
+            color: "#237b42"
+          }}>
+            🏠 Home
+          </button>
+
+          <button onClick={onAccount} style={{
+            ...buttonStyle,
+            background: "#edf2ed",
+            color: "#237b42"
+          }}>
+            👤 My Account
+          </button>
 
           <button onClick={onLogout} style={{
             ...buttonStyle,
@@ -306,6 +490,11 @@ function RetailerDashboard({ user, onLogout }) {
               <button
                 key={name}
                 onClick={() => {
+                  if (name === "My Account") {
+                    onAccount();
+                    return;
+                  }
+
                   setSection(name);
                   setFormOpen(false);
                   setMessage("");
@@ -576,6 +765,8 @@ function RetailerDashboard({ user, onLogout }) {
                   <p><strong>Owner:</strong> {user.name}</p>
                   <p><strong>Email:</strong> {user.email}</p>
                   <p><strong>Mobile:</strong> {user.mobile || "Not provided"}</p>
+                  <p><strong>Shop Address:</strong> {user.shopAddress || "Not provided"}</p>
+                  <p><strong>PIN Code:</strong> {user.pincode || "Not provided"}</p>
                   <p style={{ color: "#758278" }}>Profile editing will be added later.</p>
                 </div>
               )}
@@ -605,7 +796,6 @@ function App() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
-  // Products now come from MongoDB
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [productsError, setProductsError] = useState("");
@@ -637,6 +827,17 @@ function App() {
     }
   });
 
+  const [page, setPage] = useState(() => {
+    try {
+      const savedUser = JSON.parse(localStorage.getItem("fasalsetu_user"));
+      return savedUser?.role === "retailer" ? "dashboard" : "home";
+    } catch {
+      return "home";
+    }
+  });
+
+  const [accountReturnPage, setAccountReturnPage] = useState("home");
+
   const [farmerArea, setFarmerArea] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("fasalsetu_area")) || null;
@@ -645,7 +846,6 @@ function App() {
     }
   });
 
-  // Fetch all active products from MongoDB
   async function loadPublicProducts() {
     try {
       setProductsLoading(true);
@@ -759,6 +959,11 @@ function App() {
     setAuthMessage("");
   }
 
+  function openAccount(returnPage = "home") {
+    setAccountReturnPage(returnPage);
+    setPage("account");
+  }
+
   async function handleAuthSubmit(e) {
     e.preventDefault();
     setAuthMessage("");
@@ -803,11 +1008,13 @@ function App() {
       setAuthPassword("");
 
       if (data.user.role === "farmer") {
+        setPage("home");
         setAuthScreen("area");
         setAuthMessage("");
       } else {
+        setPage("dashboard");
         setAuthOpen(false);
-        alert(data.message);
+        alert(data.message || "Welcome to FasalSetu!");
       }
     } catch (error) {
       setAuthMessage(error.message || "Server connection failed.");
@@ -833,6 +1040,7 @@ function App() {
     setFarmerArea(area);
     setAuthMessage("");
     setAuthOpen(false);
+    setPage("home");
     alert("Welcome to FasalSetu!");
   }
 
@@ -840,13 +1048,36 @@ function App() {
     localStorage.removeItem("fasalsetu_token");
     localStorage.removeItem("fasalsetu_user");
     localStorage.removeItem("fasalsetu_area");
+
     setUser(null);
     setFarmerArea(null);
+    setPage("home");
+    setCart([]);
+    setCartOpen(false);
+    setAuthOpen(false);
+
     alert("You have been logged out.");
   }
 
-  if (user?.role === "retailer") {
-    return <RetailerDashboard user={user} onLogout={logout} />;
+  if (page === "account" && user) {
+    return (
+      <AccountDetails
+        user={user}
+        onBack={() => setPage(accountReturnPage)}
+        onLogout={logout}
+      />
+    );
+  }
+
+  if (user?.role === "retailer" && page === "dashboard") {
+    return (
+      <RetailerDashboard
+        user={user}
+        onLogout={logout}
+        onHome={() => setPage("home")}
+        onAccount={() => openAccount("dashboard")}
+      />
+    );
   }
 
   return (
@@ -866,11 +1097,30 @@ function App() {
 
         <div className="header-actions">
           {user ? (
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <span style={{ fontWeight: 600, color: "#237b42" }}>
                 Hi, {user.name}
               </span>
-              <button className="login-button" onClick={logout}>Logout</button>
+
+              {user.role === "retailer" && (
+                <button
+                  className="login-button"
+                  onClick={() => setPage("dashboard")}
+                >
+                  Business Panel
+                </button>
+              )}
+
+              <button
+                className="login-button"
+                onClick={() => openAccount("home")}
+              >
+                My Account
+              </button>
+
+              <button className="login-button" onClick={logout}>
+                Logout
+              </button>
             </div>
           ) : (
             <button className="login-button" onClick={openAuth}>
@@ -896,8 +1146,14 @@ function App() {
                 setActiveCategory("All");
                 setSearch("");
                 setCartOpen(false);
+                setPage("home");
               } else if (item === "My Orders" && !user) {
                 openAuth();
+              } else if (item === "My Orders" && user?.role === "retailer") {
+                setPage("dashboard");
+                alert("Orders section is not connected yet.");
+              } else if (item === "My Orders" && user?.role === "farmer") {
+                alert("Your orders section will be connected later.");
               }
             }}
           >
